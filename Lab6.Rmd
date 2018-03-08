@@ -1,0 +1,95 @@
+---
+title: "Aggregating"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(babynames)
+```
+```{r}
+jessie <- babynames %>% filter(name == "Jessie")
+jessie
+```
+```{r}
+jessieplot <- ggplot(jessie, aes(x = year, y = n, color = sex)) + geom_line()
+jessieplot
+##2 To make a proportion we need to compare jessies from two different rows
+```
+```{r}
+jessiemale <- babynames %>% filter(name == "Jessie") %>% group_by(year) %>% summarise(total = sum(n), num_males = sum(ifelse(sex == "M", n, 0)))
+jessiemale
+
+propM_1982 <- jessiemale %>% mutate(prop_males = num_males / total)
+propM_1982
+```
+```{r}
+alljessie <- babynames %>% filter(name == "Jessie") %>% group_by(year) %>% summarise(total = sum(n), num_males = sum(ifelse(sex == "M", n, 0)), num_females = sum(ifelse(sex == "F", n, 0))) %>% mutate(prop_males = num_males / total) %>% mutate(prop_females = num_females / total)
+alljessie
+```
+```{r}
+alljessieplot <- ggplot(alljessie, aes(x = year, y = prop_males)) + geom_line() + geom_hline(yintercept = 0.5)
+alljessieplot
+
+```
+```{r}
+babynames %>% filter(name == "Jessie") %>% group_by(year) %>% summarise(total_births = sum(n)) %>% arrange(desc(total_births))
+
+babynames %>% group_by(name) %>% summarise(first_year = min(year), last_year = max(year))
+
+babynames %>% group_by(name) %>% summarise(num_rows = n()) %>% filter(num_rows == 2 * (2015 - 1880 + 1))
+```
+```{r}
+babynames %>% filter(year <= 2000, year >= 1990) %>% group_by(name) %>% summarise(total_births = sum(n)) %>% arrange(desc(total_births)) %>% head(n = 10)
+```
+
+```{r}
+##There were no names in 1999 that were assigned to 1% or more of all births irrespective of sex so I changed it from 1% to 0.1%
+
+popular1999 <- babynames %>% 
+  filter(year == 1999) %>% 
+  group_by(name) %>% 
+  summarise(total_births = sum(n)) %>% 
+  mutate(overall_total = sum(total_births)) %>% 
+  mutate(proportion = total_births / overall_total) %>% 
+  filter(proportion >= 0.001) %>% 
+  select(name)
+popular1999
+
+babynames %>% filter(name %in% popular1999$name) %>% group_by(name) %>% summarise(first_year = min(year)) %>% summarise(youngest_name = name[which.max(first_year)], first_appearance = max(first_year))
+
+
+```
+```{r}
+namediversity <- babynames %>% group_by(year) %>% summarise(total_names = n(), num_male_names = sum(ifelse(sex == "M", 1, 0)), num_female_names = sum(ifelse(sex == "F", 1, 0)))
+namediversity
+
+namediversity %>% 
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = total_names), color = "green") +
+  geom_line(aes(y = num_male_names), color = "blue") +
+  geom_line(aes(y = num_female_names), color = "red") +
+  ylab("Number of Different Names")
+```
+```{r}
+data(midwest)
+glimpse(midwest)
+```
+```{r}
+midwest %>% filter(state == "OH") %>% ggplot(aes(x = area)) +
+  geom_line(aes(y = percwhite), color = "red") +
+  geom_line(aes(y = percblack), color = "blue") +
+  geom_line(aes(y = percasian), color = "yellow") +
+  geom_line(aes(y = percamerindan), color = "green") +
+  geom_line(aes(y = percother), color = "orange") +
+  ylab("Percentage of Different Races in an Area")
+
+```
+
+
+
+
+
