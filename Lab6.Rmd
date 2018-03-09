@@ -79,7 +79,10 @@ data(midwest)
 glimpse(midwest)
 ```
 ```{r}
-midwest %>% filter(state == "OH") %>% ggplot(aes(x = area)) +
+midwest %>% filter(state == "OH") %>% 
+  group_by(area) %>%
+  
+  ggplot(aes(x = area)) +
   geom_line(aes(y = percwhite), color = "red") +
   geom_line(aes(y = percblack), color = "blue") +
   geom_line(aes(y = percasian), color = "yellow") +
@@ -88,6 +91,42 @@ midwest %>% filter(state == "OH") %>% ggplot(aes(x = area)) +
   ylab("Percentage of Different Races in an Area")
 
 ```
+```{r}
+midwest %>%
+  group_by(area) %>%
+  summarise(total_black = sum(popblack), 
+            total_white = sum(popwhite),
+            total_asian = sum(popasian),
+            total_amindian = sum(popamerindian),
+            total_other = sum(popother)) %>%
+  ggplot(aes(x = area)) +
+  geom_line(aes(y = total_white), color = "red") +
+  geom_line(aes(y = total_black), color = "blue") +
+  geom_line(aes(y = total_asian), color = "yellow") +
+  geom_line(aes(y = total_amindian), color = "darkgreen") +
+  geom_line(aes(y = total_other), color = "purple") +
+  ylab("Proportion of Different Races")
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
